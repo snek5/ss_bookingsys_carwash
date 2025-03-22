@@ -1,15 +1,31 @@
 {% extends 'layout.html' %}
+{% block title %}Admin Login{% endblock %}
 {% block content %}
-<h2>Admin Login</h2>
-<form method="post" class="mt-3">
-    <input type="text" name="username" class="form-control mb-2" placeholder="Username" required>
-    <input type="password" name="password" class="form-control mb-2" placeholder="Password" required>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
-<p class="mt-3">
-    Don't have an account? <a href="{{ url_for('admin.register') }}">Register here</a>.
-</p>
-{% for message in get_flashed_messages() %}
-    <div class="alert alert-danger mt-2">{{ message }}</div>
-{% endfor %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Admin Login</h2>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}  {# ✅ CSRF Token Protection #}
+
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="Enter username") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="Enter password") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <div class="mt-3 text-center">
+            <p>Back to <a href="{{ url_for('main.index') }}">Home</a></p>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

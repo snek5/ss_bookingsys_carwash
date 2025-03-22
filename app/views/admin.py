@@ -3,60 +3,51 @@ from flask_login import login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
+from ..forms import LoginForm, RegisterForm  # ✅ Import WTForms
 
-admin = Blueprint('admin', __name__)
+admin = Blueprint("admin", __name__)
 
 @login_manager.user_loader
 def load_user(user_id):
     return Admin.query.get(int(user_id))
 
-@admin.route('/login', methods=['GET', 'POST'])
+@admin.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = Admin.query.filter_by(username=username).first()
+    form = LoginForm()  # ✅ Create LoginForm instance
 
-        if user and check_password_hash(user.password, password):
+    if form.validate_on_submit():
+        user = Admin.query.filter_by(username=form.username.data).first()
+        if user and check_password_hash(user.password.data, form.password.data):
             login_user(user)
-            return redirect(url_for('admin.dashboard'))
-        
-        flash('Invalid credentials', 'danger')
-    return render_template('login.html')
+            return redirect(url_for("admin.dashboard"))
 
-@admin.route('/register', methods=['GET', 'POST'])
+        flash("Invalid credentials", "danger")
+
+    return render_template("login.html", form=form)  # ✅ Pass form to template
+
+@admin.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        # Get form data
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
+    form = RegisterForm()  # ✅ Create RegisterForm instance
 
-        # Check if passwords match
-        if password != confirm_password:
-            flash('Passwords do not match', 'danger')
-            return redirect(url_for('admin.register'))
-
-        # Check if the username already exists
-        existing_user = Admin.query.filter_by(username=username).first()
+    if form.validate_on_submit():
+        # Check if username exists
+        existing_user = Admin.query.filter_by(username=form.username.data).first()
         if existing_user:
-            flash('Username already exists', 'danger')
-            return redirect(url_for('admin.register'))
+            flash("Username already exists", "danger")
+            return redirect(url_for("admin.register"))
 
-        # Create a new admin user
+        # Hash password and create new admin
         new_user = Admin(
-            username=username,
-            password=generate_password_hash(password, method='pbkdf2:sha256')  # Fixed hashing method
+            username=form.username.data,
+            password=generate_password_hash(form.password.data, method="pbkdf2:sha256"),
         )
-
-        # Add the new user to the database
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('admin.login'))
+        flash("Registration successful! Please log in.", "success")
+        return redirect(url_for("admin.login"))
 
-    return render_template('register.html')
+    return render_template("register.html", form=form)  # ✅ Pass form to template
 
 @admin.route("/dashboard")
 @login_required
@@ -78,8 +69,8 @@ def dashboard():
         other_count=other_count,
     )
 
-@admin.route('/logout')
+@admin.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('admin.login'))
+    return redirect(url_for("admin.login"))

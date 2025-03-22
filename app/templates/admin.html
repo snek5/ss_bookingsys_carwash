@@ -1,9 +1,11 @@
 {% extends 'layout.html' %}
+{% block title %}Admin Dashboard{% endblock %}
 {% block content %}
-<h2>Admin Dashboard</h2>
+
+<h2 class="text-center mb-4">Admin Dashboard</h2>
 
 <!-- Car Type Statistics -->
-<div class="row">
+<div class="row text-center">
     <div class="col-md-3">
         <div class="alert alert-primary">
             <h4>SUVs</h4>
@@ -30,8 +32,8 @@
     </div>
 </div>
 
-<!-- Booking List -->
-<table class="table table-striped">
+<!-- Booking Table -->
+<table class="table table-striped mt-3">
     <thead>
         <tr>
             <th>ID</th>
@@ -56,5 +58,8 @@
     </tbody>
 </table>
 
-<a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
+<div class="text-center">
+    <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
+</div>
+
 {% endblock %}
