@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer Name</th>
+            <th>Car Plate</th>
+            <th>Car Type</th>
+            <th>Date</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.name }}</td>
+            <td>{{ booking.car_plate }}</td>
+            <td>{{ booking.car_type }}</td>
+            <td>{{ booking.date }}</td>
+            <td>{{ booking.time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
+{% endblock %}
