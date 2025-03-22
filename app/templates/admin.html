@@ -1,6 +1,36 @@
 {% extends 'layout.html' %}
 {% block content %}
 <h2>Admin Dashboard</h2>
+
+<!-- Car Type Statistics -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="alert alert-primary">
+            <h4>SUVs</h4>
+            <p><strong>{{ suv_count }}</strong> booked</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-success">
+            <h4>Sedans</h4>
+            <p><strong>{{ sedan_count }}</strong> booked</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-warning">
+            <h4>Trucks</h4>
+            <p><strong>{{ truck_count }}</strong> booked</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="alert alert-danger">
+            <h4>Others</h4>
+            <p><strong>{{ other_count }}</strong> booked</p>
+        </div>
+    </div>
+</div>
+
+<!-- Booking List -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -25,5 +55,6 @@
         {% endfor %}
     </tbody>
 </table>
+
 <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
 {% endblock %}

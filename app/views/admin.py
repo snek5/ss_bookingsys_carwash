@@ -58,11 +58,25 @@ def register():
 
     return render_template('register.html')
 
-@admin.route('/dashboard')
+@admin.route("/dashboard")
 @login_required
 def dashboard():
     bookings = Booking.query.all()
-    return render_template('admin.html', bookings=bookings)
+
+    # Count different car types
+    suv_count = Booking.query.filter_by(car_type="SUV").count()
+    sedan_count = Booking.query.filter_by(car_type="Sedan").count()
+    truck_count = Booking.query.filter_by(car_type="Truck").count()
+    other_count = Booking.query.filter(Booking.car_type.notin_(["SUV", "Sedan", "Truck"])).count()
+
+    return render_template(
+        "admin.html",
+        bookings=bookings,
+        suv_count=suv_count,
+        sedan_count=sedan_count,
+        truck_count=truck_count,
+        other_count=other_count,
+    )
 
 @admin.route('/logout')
 @login_required
