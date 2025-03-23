@@ -4,23 +4,23 @@ from ..forms import BookingForm
 
 main = Blueprint('main', __name__)
 
-@main.route('/', methods=['GET', 'POST'])
+
+@main.route("/", methods=["GET", "POST"])
 def index():
     form = BookingForm()
     if form.validate_on_submit():
-        # Get form data
-        name = form.name.data
-        car_plate = form.car_plate.data
-        car_type = form.car_type.data
-        date = form.date.data.strftime('%Y-%m-%d')  # Convert to string
-        time = form.time.data.strftime('%H:%M')     # Convert to string
-
-        # Save to database
-        new_booking = Booking(name=name, car_plate=car_plate, car_type=car_type, date=date, time=time)
+        new_booking = Booking(
+            name=form.name.data,
+            contact_number=form.contact_number.data,
+            car_plate=form.car_plate.data,
+            car_type=form.car_type.data,
+            wash_type=form.wash_type.data,  # ✅ Save wash type
+            date=form.date.data.strftime("%Y-%m-%d"),
+            time=form.time.data.strftime("%H:%M"),
+        )
         db.session.add(new_booking)
         db.session.commit()
-
         flash("Booking successful!", "success")
-        return redirect(url_for('main.index'))
+        return redirect(url_for("main.index"))
 
-    return render_template('index.html', form=form)
+    return render_template("index.html", form=form)

@@ -3,7 +3,8 @@ from flask_login import login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
-from ..forms import LoginForm, RegisterForm  # ✅ Import WTForms
+from ..forms import LoginForm, RegisterForm, BookingForm  # ✅ Import WTForms
+from datetime import datetime
 
 admin = Blueprint("admin", __name__)
 
@@ -17,7 +18,7 @@ def login():
 
     if form.validate_on_submit():
         user = Admin.query.filter_by(username=form.username.data).first()
-        if user and check_password_hash(user.password.data, form.password.data):
+        if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for("admin.dashboard"))
 
@@ -68,6 +69,62 @@ def dashboard():
         truck_count=truck_count,
         other_count=other_count,
     )
+
+@admin.route("/booking/add", methods=["GET", "POST"])
+@login_required
+def add_booking():
+    form = BookingForm()
+    if form.validate_on_submit():
+        new_booking = Booking(
+            name=form.name.data,
+            contact_number=form.contact_number.data,
+            car_plate=form.car_plate.data,
+            car_type=form.car_type.data,
+            wash_type=form.wash_type.data,
+            date=form.date.data.strftime("%Y-%m-%d"),
+            time=form.time.data.strftime("%H:%M"),
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+        flash("Booking added successfully!", "success")
+        return redirect(url_for("admin.dashboard"))
+
+    return render_template("booking_form.html", form=form, action="Add")
+
+@admin.route("/booking/edit/<int:booking_id>", methods=["GET", "POST"])
+@login_required
+def edit_booking(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+
+    # ✅ Convert stored strings to datetime.date and datetime.time objects
+    booking.date = datetime.strptime(booking.date, "%Y-%m-%d").date()  # Convert 'YYYY-MM-DD' string to date object
+    booking.time = datetime.strptime(booking.time, "%H:%M").time()  # Convert 'HH:MM' string to time object
+
+    form = BookingForm(obj=booking)  # Prefill form with existing data
+
+    if form.validate_on_submit():
+        booking.name = form.name.data
+        booking.contact_number = form.contact_number.data
+        booking.car_plate = form.car_plate.data
+        booking.car_type = form.car_type.data
+        booking.wash_type = form.wash_type.data
+        booking.date = form.date.data.strftime("%Y-%m-%d")  # ✅ Convert date object back to string
+        booking.time = form.time.data.strftime("%H:%M")  # ✅ Convert time object back to string
+
+        db.session.commit()
+        flash("Booking updated successfully!", "success")
+        return redirect(url_for("admin.dashboard"))
+
+    return render_template("booking_form.html", form=form, action="Edit")
+
+@admin.route("/booking/delete/<int:booking_id>", methods=["POST"])
+@login_required
+def delete_booking(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    db.session.delete(booking)
+    db.session.commit()
+    flash("Booking deleted successfully!", "success")
+    return redirect(url_for("admin.dashboard"))
 
 @admin.route("/logout")
 @login_required

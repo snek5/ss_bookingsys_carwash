@@ -4,10 +4,12 @@ from flask_login import UserMixin
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    contact_number = db.Column(db.String(20), nullable=False)  # ✅ New field
     car_plate = db.Column(db.String(20), unique=True, nullable=False)
     car_type = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.String(10), nullable=False)  # Store as text for simplicity
-    time = db.Column(db.String(5), nullable=False)   # HH:MM format
+    wash_type = db.Column(db.String(50), nullable=False)  # ✅ New field
+    date = db.Column(db.String(10), nullable=False)
+    time = db.Column(db.String(5), nullable=False)  # HH:MM format
 
 class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
