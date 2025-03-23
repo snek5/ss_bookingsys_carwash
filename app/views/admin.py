@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, login_user, logout_user
+from flask_paginate import Pagination, get_page_args
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
@@ -53,9 +54,50 @@ def register():
 @admin.route("/dashboard")
 @login_required
 def dashboard():
-    bookings = Booking.query.all()
+    # 🟢 Get query parameters
+    search_query = request.args.get("search", "").strip()
+    filter_car_type = request.args.get("filter_car_type", "")
+    filter_wash_type = request.args.get("filter_wash_type", "")
+    filter_today = request.args.get("filter_today", "")
+    sort_by = request.args.get("sort_by", "date")
+    sort_order = request.args.get("sort_order", "asc")
 
-    # Count different car types
+    # 🟢 Get today's date
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    # 🟢 Start base query
+    query = Booking.query
+
+    # 🟢 Apply search filter
+    if search_query:
+        query = query.filter(
+            (Booking.name.ilike(f"%{search_query}%")) |
+            (Booking.car_plate.ilike(f"%{search_query}%")) |
+            (Booking.contact_number.ilike(f"%{search_query}%"))
+        )
+
+    # 🟢 Apply filters
+    if filter_car_type:
+        query = query.filter(Booking.car_type == filter_car_type)
+    if filter_wash_type:
+        query = query.filter(Booking.wash_type == filter_wash_type)
+    if filter_today:
+        query = query.filter(Booking.date == today)
+
+    # 🟢 Apply sorting
+    if sort_by in ["name", "date", "time"]:
+        query = query.order_by(getattr(Booking, sort_by).desc() if sort_order == "desc" else getattr(Booking, sort_by).asc())
+
+    # 🟢 Pagination Setup
+    page, per_page, offset = get_page_args(page_parameter="page", per_page_parameter="per_page")
+    per_page = 10  # Show 10 records per page
+    total = query.count()
+    bookings = query.offset(offset).limit(per_page).all()
+
+    # 🟢 Create Pagination Object
+    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework="bootstrap5")
+
+    # 🟢 Count different car types (for dashboard stats)
     suv_count = Booking.query.filter_by(car_type="SUV").count()
     sedan_count = Booking.query.filter_by(car_type="Sedan").count()
     truck_count = Booking.query.filter_by(car_type="Truck").count()
@@ -64,10 +106,17 @@ def dashboard():
     return render_template(
         "admin.html",
         bookings=bookings,
+        pagination=pagination,
         suv_count=suv_count,
         sedan_count=sedan_count,
         truck_count=truck_count,
         other_count=other_count,
+        search_query=search_query,
+        filter_car_type=filter_car_type,
+        filter_wash_type=filter_wash_type,
+        filter_today=filter_today,
+        sort_by=sort_by,
+        sort_order=sort_order
     )
 
 @admin.route("/booking/add", methods=["GET", "POST"])

@@ -32,8 +32,40 @@
     </div>
 </div>
 
-<!-- Booking Table -->
-<table class="table table-striped mt-3">
+<!-- 🟢 Search & Filter Form -->
+<form method="GET" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="search" class="form-control" placeholder="Search by Name, Plate, Contact"
+               value="{{ search_query }}">
+    </div>
+    <div class="col-md-2">
+        <select name="filter_car_type" class="form-control">
+            <option value="">Filter by Car Type</option>
+            <option value="SUV" {% if filter_car_type=="SUV" %}selected{% endif %}>SUV</option>
+            <option value="Sedan" {% if filter_car_type=="Sedan" %}selected{% endif %}>Sedan</option>
+            <option value="Truck" {% if filter_car_type=="Truck" %}selected{% endif %}>Truck</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="filter_wash_type" class="form-control">
+            <option value="">Filter by Wash Type</option>
+            <option value="Exterior Only" {% if filter_wash_type=="Exterior Only" %}selected{% endif %}>Exterior Only</option>
+            <option value="Interior + Exterior" {% if filter_wash_type=="Interior + Exterior" %}selected{% endif %}>Interior + Exterior</option>
+            <option value="Exterior and Polish" {% if filter_wash_type=="Exterior and Polish" %}selected{% endif %}>Exterior and Polish</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-center">
+        <input type="checkbox" name="filter_today" value="true" {% if filter_today %}checked{% endif %}
+               class="form-check-input me-2" id="filterToday">
+        <label for="filterToday" class="form-check-label">Today's Bookings</label>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+<!-- 🟢 Bookings Table -->
+<table class="table table-striped">
     <thead>
         <tr>
             <th>ID</th>
@@ -44,6 +76,7 @@
             <th>Wash Type</th>
             <th>Date</th>
             <th>Time</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -67,6 +100,11 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- 🟢 Pagination Controls -->
+<div class="d-flex justify-content-center mt-4">
+    {{ pagination.links }}
+</div>
 
 <div class="text-center">
     <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
