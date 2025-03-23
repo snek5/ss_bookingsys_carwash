@@ -96,11 +96,13 @@ def add_booking():
 def edit_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
 
-    # ✅ Convert stored strings to datetime.date and datetime.time objects
-    booking.date = datetime.strptime(booking.date, "%Y-%m-%d").date()  # Convert 'YYYY-MM-DD' string to date object
-    booking.time = datetime.strptime(booking.time, "%H:%M").time()  # Convert 'HH:MM' string to time object
+    # ✅ Convert stored strings to datetime.date and datetime.time objects (Only if needed)
+    if isinstance(booking.date, str):  # Check if stored as string
+        booking.date = datetime.strptime(booking.date, "%Y-%m-%d").date()  # Convert 'YYYY-MM-DD' string to date object
+    if isinstance(booking.time, str):
+        booking.time = datetime.strptime(booking.time, "%H:%M").time()  # Convert 'HH:MM' string to time object
 
-    form = BookingForm(obj=booking)  # Prefill form with existing data
+    form = BookingForm(obj=booking)  # ✅ Prefill form with corrected data
 
     if form.validate_on_submit():
         booking.name = form.name.data
