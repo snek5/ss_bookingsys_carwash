@@ -64,47 +64,97 @@
     </div>
 </form>
 
-<!-- 🟢 Bookings Table -->
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Customer Name</th>
-            <th>Contact</th>
-            <th>Car Plate</th>
-            <th>Car Type</th>
-            <th>Wash Type</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for booking in bookings %}
-        <tr>
-            <td>{{ booking.id }}</td>
-            <td>{{ booking.name }}</td>
-            <td>{{ booking.contact_number }}</td>
-            <td>{{ booking.car_plate }}</td>
-            <td>{{ booking.car_type }}</td>
-            <td>{{ booking.wash_type }}</td>
-            <td>{{ booking.date }}</td>
-            <td>{{ booking.time }}</td>
-            <td>
-                <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                <form action="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="row">
+    <!-- 🟢 Booking Table (Left Side) -->
+    <div class="col-md-6">
+        <h4>Booking List</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Car Type</th>
+                    <th>Wash Type</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings.items %}
+                <tr>
+                    <td>{{ booking.name }}</td>
+                    <td>{{ booking.car_type }}</td>
+                    <td>{{ booking.wash_type }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.time }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-<!-- 🟢 Pagination Controls -->
-<div class="d-flex justify-content-center mt-4">
-    {{ pagination.links }}
+        <!-- 🔽 Pagination Controls -->
+        <!-- Pagination Controls -->
+        <nav>
+            <ul class="pagination">
+                {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.dashboard', page=pagination.prev_num) }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.dashboard', page=page) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.dashboard', page=pagination.next_num) }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+    </div>
+
+    <!-- 🔵 Booking Calendar (Right Side) -->
+    <div class="col-md-6">
+        <h4>Booking Calendar</h4>
+        <div id="calendar"></div>
+    </div>
 </div>
+
+<!-- FullCalendar JavaScript -->
+<script src="{{ url_for('static', filename='index.global.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "timeGridDay",
+            headerToolbar: {
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay"
+            },
+            events: "/admin/api/bookings",
+            eventClick: function(info) {
+                if (confirm("Edit this booking?")) {
+                    window.location.href = "/admin/booking/edit/" + info.event.id;
+                }
+            }
+        });
+        calendar.render();
+    });
+</script>
 
 <div class="text-center">
     <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>

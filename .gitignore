@@ -2,3 +2,5 @@
 .env
 **/*.pyc
 **/__pycache__/*
+app/views/__pycache__/admin.cpython-312.pyc
+*.pyc

@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block title %}Booking Calendar{% endblock %}
+{% block content %}
+
+<h2 class="text-center mb-4">Booking Scheduler</h2>
+
+<!-- 🟢 Calendar Container -->
+<div id="calendar"></div>
+
+<!-- FullCalendar JavaScript -->
+<script src="{{ url_for('static', filename='index.global.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "timeGridDay",  // Set default view to daily schedule
+            headerToolbar: {
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay"
+            },
+            events: "/admin/api/bookings",  // Fetch bookings from Flask API
+            eventClick: function(info) {
+                if (confirm("Edit this booking?")) {
+                    window.location.href = "/admin/booking/edit/" + info.event.id;
+                }
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+{% endblock %}

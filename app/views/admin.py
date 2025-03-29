@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, login_user, logout_user
 from flask_paginate import Pagination, get_page_args
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
 from ..forms import LoginForm, RegisterForm, BookingForm  # ✅ Import WTForms
-from datetime import datetime
+from datetime import datetime, timedelta
 
 admin = Blueprint("admin", __name__)
 
@@ -54,7 +54,6 @@ def register():
 @admin.route("/dashboard")
 @login_required
 def dashboard():
-    # 🟢 Get query parameters
     search_query = request.args.get("search", "").strip()
     filter_car_type = request.args.get("filter_car_type", "")
     filter_wash_type = request.args.get("filter_wash_type", "")
@@ -62,13 +61,9 @@ def dashboard():
     sort_by = request.args.get("sort_by", "date")
     sort_order = request.args.get("sort_order", "asc")
 
-    # 🟢 Get today's date
     today = datetime.today().strftime("%Y-%m-%d")
-
-    # 🟢 Start base query
     query = Booking.query
 
-    # 🟢 Apply search filter
     if search_query:
         query = query.filter(
             (Booking.name.ilike(f"%{search_query}%")) |
@@ -76,7 +71,6 @@ def dashboard():
             (Booking.contact_number.ilike(f"%{search_query}%"))
         )
 
-    # 🟢 Apply filters
     if filter_car_type:
         query = query.filter(Booking.car_type == filter_car_type)
     if filter_wash_type:
@@ -84,20 +78,19 @@ def dashboard():
     if filter_today:
         query = query.filter(Booking.date == today)
 
-    # 🟢 Apply sorting
     if sort_by in ["name", "date", "time"]:
-        query = query.order_by(getattr(Booking, sort_by).desc() if sort_order == "desc" else getattr(Booking, sort_by).asc())
+        query = query.order_by(
+            getattr(Booking, sort_by).desc() if sort_order == "desc" else getattr(Booking, sort_by).asc()
+        )
 
-    # 🟢 Pagination Setup
-    page, per_page, offset = get_page_args(page_parameter="page", per_page_parameter="per_page")
-    per_page = 10  # Show 10 records per page
-    total = query.count()
-    bookings = query.offset(offset).limit(per_page).all()
+    # 🟢 Get pagination arguments
+    page, per_page, _ = get_page_args(page_parameter="page", per_page_parameter="per_page")
+    per_page = 10
 
-    # 🟢 Create Pagination Object
-    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework="bootstrap5")
+    # 🟢 Paginate results
+    bookings = query.paginate(page=page, per_page=per_page, error_out=False)
 
-    # 🟢 Count different car types (for dashboard stats)
+    # 🟢 Count different car types for stats
     suv_count = Booking.query.filter_by(car_type="SUV").count()
     sedan_count = Booking.query.filter_by(car_type="Sedan").count()
     truck_count = Booking.query.filter_by(car_type="Truck").count()
@@ -105,8 +98,8 @@ def dashboard():
 
     return render_template(
         "admin.html",
-        bookings=bookings,
-        pagination=pagination,
+        bookings=bookings,  # ✅ Pass full pagination object
+        pagination=bookings,  # ✅ Pagination works in template
         suv_count=suv_count,
         sedan_count=sedan_count,
         truck_count=truck_count,
@@ -118,6 +111,7 @@ def dashboard():
         sort_by=sort_by,
         sort_order=sort_order
     )
+
 
 @admin.route("/booking/add", methods=["GET", "POST"])
 @login_required
@@ -182,3 +176,37 @@ def delete_booking(booking_id):
 def logout():
     logout_user()
     return redirect(url_for("admin.login"))
+
+# Calendar function
+# 🚀 Define wash durations
+WASH_DURATIONS = {
+    "Sedan": {"Exterior Only": 30, "Interior + Exterior": 45, "Exterior and Polish": 60},
+    "SUV": {"Exterior Only": 45, "Interior + Exterior": 60, "Exterior and Polish": 90},
+    "Truck": {"Exterior Only": 60, "Interior + Exterior": 90, "Exterior and Polish": 120},
+}
+
+@admin.route("/calendar")
+@login_required
+def calendar_view():
+    return render_template("calendar.html")
+
+@admin.route("/api/bookings")
+@login_required
+def get_bookings():
+    bookings = Booking.query.all()
+    events = []
+
+    for booking in bookings:
+        start_time = datetime.strptime(booking.time, "%H:%M")
+        duration = WASH_DURATIONS.get(booking.car_type, {}).get(booking.wash_type, 30)  # Default: 30 mins
+        end_time = start_time + timedelta(minutes=duration)
+
+        events.append({
+            "id": booking.id,
+            "title": f"{booking.name} - {booking.car_type} - {booking.wash_type}",
+            "start": f"{booking.date}T{start_time.strftime('%H:%M')}",
+            "end": f"{booking.date}T{end_time.strftime('%H:%M')}",
+            "color": "#007bff" if booking.wash_type == "Exterior Only" else "#28a745" if booking.wash_type == "Interior + Exterior" else "#ffc107",
+        })
+
+    return jsonify(events)

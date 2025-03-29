@@ -15,8 +15,8 @@ car_types = ["Sedan", "Truck", "SUV", "Others"]
 wash_types = ["Exterior", "Interior + Exterior", "Polish"]
 
 # Define the date range for 2025
-start_date = datetime(2025, 1, 1)
-end_date = datetime(2025, 12, 31)
+start_date = datetime(2025, 3, 1)
+end_date = datetime(2025, 3, 31)
 
 # Calculate the total number of days in 2025
 delta = end_date - start_date
@@ -37,7 +37,7 @@ def random_time():
     return f"{random.randint(0, 23):02d}:{random.randint(0, 59):02d}"
 
 # Populate the Booking table with 1000 rows
-for _ in range(1000):
+for _ in range(100):
     booking = Booking(
         name=fake.name(),
         contact_number=fake.numerify(text='#######'),  # 7 digits
@@ -52,4 +52,4 @@ for _ in range(1000):
 # Commit the session to save the data to the database
 session.commit()
 
-print("Database populated with 1000 bookings.")
+print("Database populated with 100 bookings.")
