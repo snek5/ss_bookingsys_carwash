@@ -62,3 +62,18 @@ form .form-control {
     margin: auto;
     padding: 15px;
 }
+
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa; /* Light gray Bootstrap color */
+    color: #333;
+    font-size: 14px;
+}
+
+.footer-logo {
+    height: 60px; /* Adjust size */
+    margin: 0 5px;
+    vertical-align: middle;
+}

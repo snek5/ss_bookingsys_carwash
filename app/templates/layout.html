@@ -32,10 +32,22 @@
     </div>
 
     <script src="{{ url_for('static', filename='index.global.js') }}"></script>
-    
+
     <!-- Bootstrap JS -->
     <script src="{{ url_for('static', filename='bootstrap.bundle.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
+<footer class="footer mt-4 py-3 bg-light text-center">
+    <div class="container">
+        <p class="mb-0">
+            Developed by 
+            <img src="{{ url_for('static', filename='img/ourodev.png') }}" 
+                 alt="OuroDev Logo" 
+                 class="footer-logo">
+            <!-- <strong>OuroDev</strong> -->
+        </p>
+    </div>
+</footer>
+
 </html>
