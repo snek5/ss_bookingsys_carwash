@@ -134,42 +134,41 @@ def add_booking():
 
     return render_template("booking_form.html", form=form, action="Add")
 
+# 🟢 Edit Booking Route
 @admin.route("/booking/edit/<int:booking_id>", methods=["GET", "POST"])
 @login_required
 def edit_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
+    form = BookingForm(obj=booking)
 
-    # ✅ Convert stored strings to datetime.date and datetime.time objects (Only if needed)
-    if isinstance(booking.date, str):  # Check if stored as string
-        booking.date = datetime.strptime(booking.date, "%Y-%m-%d").date()  # Convert 'YYYY-MM-DD' string to date object
-    if isinstance(booking.time, str):
-        booking.time = datetime.strptime(booking.time, "%H:%M").time()  # Convert 'HH:MM' string to time object
-
-    form = BookingForm(obj=booking)  # ✅ Prefill form with corrected data
-
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
+        # Update booking fields
         booking.name = form.name.data
-        booking.contact_number = form.contact_number.data
-        booking.car_plate = form.car_plate.data
         booking.car_type = form.car_type.data
         booking.wash_type = form.wash_type.data
-        booking.date = form.date.data.strftime("%Y-%m-%d")  # ✅ Convert date object back to string
-        booking.time = form.time.data.strftime("%H:%M")  # ✅ Convert time object back to string
+        booking.date = form.date.data
+        booking.time = form.time.data
 
+        # Commit changes
         db.session.commit()
         flash("Booking updated successfully!", "success")
         return redirect(url_for("admin.dashboard"))
 
-    return render_template("booking_form.html", form=form, action="Edit")
+    return render_template("edit_booking.html", form=form, booking=booking)
 
-@admin.route("/booking/delete/<int:booking_id>", methods=["POST"])
+# 🔴 Delete Booking Route
+@admin.route("/booking/delete/<int:booking_id>", methods=["GET", "POST"])
 @login_required
 def delete_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
-    db.session.delete(booking)
-    db.session.commit()
-    flash("Booking deleted successfully!", "success")
-    return redirect(url_for("admin.dashboard"))
+
+    if request.method == "POST":
+        db.session.delete(booking)
+        db.session.commit()
+        flash("Booking deleted successfully!", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    return render_template("delete_booking.html", booking=booking)
 
 @admin.route("/logout")
 @login_required

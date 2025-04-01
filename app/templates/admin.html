@@ -2,45 +2,53 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 
-<h2 class="text-center mb-4">Admin Dashboard</h2>
+<h2 class="text-center text-primary mb-4">Admin Dashboard</h2>
 
 <!-- Car Type Statistics -->
 <div class="row text-center">
     <div class="col-md-3">
-        <div class="alert alert-primary">
-            <h4>SUVs</h4>
-            <p><strong>{{ suv_count }}</strong> booked</p>
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>SUVs</h5>
+                <p><strong>{{ suv_count }}</strong> booked</p>
+            </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="alert alert-success">
-            <h4>Sedans</h4>
-            <p><strong>{{ sedan_count }}</strong> booked</p>
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Sedans</h5>
+                <p><strong>{{ sedan_count }}</strong> booked</p>
+            </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="alert alert-warning">
-            <h4>Trucks</h4>
-            <p><strong>{{ truck_count }}</strong> booked</p>
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5>Trucks</h5>
+                <p><strong>{{ truck_count }}</strong> booked</p>
+            </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="alert alert-danger">
-            <h4>Others</h4>
-            <p><strong>{{ other_count }}</strong> booked</p>
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5>Others</h5>
+                <p><strong>{{ other_count }}</strong> booked</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- 🟢 Search & Filter Form -->
-<form method="GET" class="row g-3 mb-4">
+<!-- 🟢 Search & Filters -->
+<form method="GET" class="row g-3 my-3">
     <div class="col-md-3">
         <input type="text" name="search" class="form-control" placeholder="Search by Name, Plate, Contact"
                value="{{ search_query }}">
     </div>
     <div class="col-md-2">
         <select name="filter_car_type" class="form-control">
-            <option value="">Filter by Car Type</option>
+            <option value="">Car Type</option>
             <option value="SUV" {% if filter_car_type=="SUV" %}selected{% endif %}>SUV</option>
             <option value="Sedan" {% if filter_car_type=="Sedan" %}selected{% endif %}>Sedan</option>
             <option value="Truck" {% if filter_car_type=="Truck" %}selected{% endif %}>Truck</option>
@@ -48,28 +56,28 @@
     </div>
     <div class="col-md-2">
         <select name="filter_wash_type" class="form-control">
-            <option value="">Filter by Wash Type</option>
+            <option value="">Wash Type</option>
             <option value="Exterior Only" {% if filter_wash_type=="Exterior Only" %}selected{% endif %}>Exterior Only</option>
             <option value="Interior + Exterior" {% if filter_wash_type=="Interior + Exterior" %}selected{% endif %}>Interior + Exterior</option>
             <option value="Exterior and Polish" {% if filter_wash_type=="Exterior and Polish" %}selected{% endif %}>Exterior and Polish</option>
         </select>
     </div>
-    <div class="col-md-3 d-flex align-items-center">
+    <div class="col-md-2 d-flex align-items-center">
         <input type="checkbox" name="filter_today" value="true" {% if filter_today %}checked{% endif %}
-               class="form-check-input me-2" id="filterToday">
-        <label for="filterToday" class="form-check-label">Today's Bookings</label>
+               class="form-check-input me-2">
+        <label class="form-check-label">Today's Bookings</label>
     </div>
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
 </form>
 
+<!-- 🟢 Booking Table & Calendar -->
 <div class="row">
-    <!-- 🟢 Booking Table (Left Side) -->
     <div class="col-md-6">
         <h4>Booking List</h4>
         <table class="table table-striped">
-            <thead>
+            <thead class="table-dark">
                 <tr>
                     <th>Customer</th>
                     <th>Car Type</th>
@@ -89,55 +97,18 @@
                     <td>{{ booking.time }}</td>
                     <td>
                         <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                        <a href="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <!-- 🔽 Pagination Controls -->
-        <!-- Pagination Controls -->
-        <nav>
-            <ul class="pagination">
-                {% if pagination.has_prev %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('admin.dashboard', page=pagination.prev_num) }}">Previous</a>
-                    </li>
-                {% endif %}
-
-                {% for page in pagination.iter_pages() %}
-                    {% if page %}
-                        <li class="page-item {% if page == pagination.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('admin.dashboard', page=page) }}">{{ page }}</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('admin.dashboard', page=pagination.next_num) }}">Next</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-
     </div>
 
-    <!-- 🔵 Booking Calendar (Right Side) -->
     <div class="col-md-6">
         <h4>Booking Calendar</h4>
         <div id="calendar"></div>
     </div>
-</div>
-
-<!-- FullCalendar JavaScript -->
-<script src="{{ url_for('static', filename='index.global.js') }}"></script>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-<div class="text-center">
-    <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logout</a>
 </div>
 
 {% endblock %}

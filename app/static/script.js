@@ -1,5 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
     var calendarEl = document.getElementById("calendar");
+
+    if (!calendarEl) {
+        console.error("Calendar element not found!");
+        return;  // Prevent error if calendar is missing
+    }
+
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "timeGridDay",
         headerToolbar: {
@@ -7,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay"
         },
-        themeSystem: "bootstrap5", // Ensures Bootstrap styling
+        themeSystem: "bootstrap5", // Bootstrap styling
         height: "auto",
         events: "/admin/api/bookings", // Fetch bookings dynamically
         
@@ -21,5 +27,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
     calendar.render();
 });

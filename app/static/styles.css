@@ -1,18 +1,64 @@
+/* 🔹 General Body Styling */
 body {
     background-color: #f8f9fa;
-    font-family: Arial, sans-serif;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
+/* 🔹 Centered Forms (Login/Register) */
+.login-container, .register-container {
+    max-width: 400px;
+    margin: 50px auto;
     padding: 20px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
+/* 🔹 Form Styling */
+form .form-control {
+    border-radius: 5px;
+}
+
+/* 🔹 Buttons */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+.btn-warning {
+    background-color: #ffc107;
+    border: none;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* 🔹 Dashboard Statistics */
+.card {
+    border-radius: 8px;
     text-align: center;
-    margin-bottom: 20px;
+}
+
+/* 🔹 Table Styling */
+.table {
+    background: white;
+}
+.table thead {
+    background: #343a40;
+    color: white;
+}
+
+/* 🔹 FullCalendar Customization */
+#calendar {
+    max-width: 100%;
+    margin: auto;
+    padding: 15px;
 }
