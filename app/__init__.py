@@ -8,7 +8,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="static")
     
     # Configuration
     app.config['SECRET_KEY'] = 'your_secret_key'
