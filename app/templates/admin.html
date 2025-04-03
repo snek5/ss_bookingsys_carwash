@@ -96,8 +96,13 @@
                     <td>{{ booking.date }}</td>
                     <td>{{ booking.time }}</td>
                     <td>
+                        <button class="btn btn-success btn-sm update-status"
+                                data-id="{{ booking.id }}" data-status="Attended">✅ Attended</button>
+                        <button class="btn btn-danger btn-sm update-status"
+                                data-id="{{ booking.id }}" data-status="No Show">❌ No Show</button>        
                         <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <a href="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                                
                     </td>
                 </tr>
                 {% endfor %}

@@ -200,12 +200,40 @@ def get_bookings():
         duration = WASH_DURATIONS.get(booking.car_type, {}).get(booking.wash_type, 30)  # Default: 30 mins
         end_time = start_time + timedelta(minutes=duration)
 
+        # 🎨 Change color based on status
+        if booking.status == "Attended":
+            text_decoration = "line-through"
+            opacity = 0.6
+        elif booking.status == "No Show":
+            background_color = "red"
+        else:
+            text_decoration = "none"
+            opacity = 1
+            background_color = "#007bff" if booking.wash_type == "Exterior Only" else "#28a745" if booking.wash_type == "Interior + Exterior" else "#ffc107"
+
         events.append({
             "id": booking.id,
             "title": f"{booking.name} - {booking.car_type} - {booking.wash_type}",
             "start": f"{booking.date}T{start_time.strftime('%H:%M')}",
             "end": f"{booking.date}T{end_time.strftime('%H:%M')}",
-            "color": "#007bff" if booking.wash_type == "Exterior Only" else "#28a745" if booking.wash_type == "Interior + Exterior" else "#ffc107",
+            "color": background_color,
+            "textDecoration": text_decoration,
+            "opacity": opacity,
+            "status": booking.status  # Include status
         })
 
     return jsonify(events)
+
+
+@admin.route("/api/update-status/<int:booking_id>", methods=["POST"])
+@login_required
+def update_booking_status(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    data = request.get_json()
+    
+    if "status" in data:
+        booking.status = data["status"]
+        db.session.commit()
+        return jsonify({"success": True, "message": "Booking status updated"})
+    
+    return jsonify({"success": False, "message": "Invalid status update"}), 400
