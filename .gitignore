@@ -4,3 +4,5 @@
 **/__pycache__/*
 app/views/__pycache__/admin.cpython-312.pyc
 *.pyc
+instance/*
+tree.txt

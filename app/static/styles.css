@@ -64,16 +64,18 @@ form .form-control {
 }
 
 .footer {
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    background-color: #f8f9fa; /* Light gray Bootstrap color */
-    color: #333;
-    font-size: 14px;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+}
+.footer-logo {
+    height: 60px;
+    vertical-align: middle;
+    margin-left: 5px;
 }
 
-.footer-logo {
-    height: 60px; /* Adjust size */
-    margin: 0 5px;
-    vertical-align: middle;
+/* Sidebar-specific styles (only for calendar.html) */
+.nav-link.active {
+    font-weight: bold;
+    color: #007bff;
 }

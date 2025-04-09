@@ -1,0 +1,44 @@
+{% set active_endpoint = request.endpoint.split('.')[-1] %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='index.global.js') }}"></script>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="navbar navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="#">Car Wash Admin</a>
+    <a class="btn btn-outline-light ms-auto" href="{{ url_for('admin.logout') }}">Logout</a>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 bg-light border-end vh-100 py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.calendar_view') }}" class="nav-link {% if active_endpoint == 'calendar' %}active fw-bold text-primary{% endif %}">📅 Calendar</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if active_endpoint == 'dashboard' %}active fw-bold text-primary{% endif %}">📋 Booking List</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 py-4">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='bootstrap.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
