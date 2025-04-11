@@ -15,8 +15,8 @@ def index():
             car_plate=form.car_plate.data,
             car_type=form.car_type.data,
             wash_type=form.wash_type.data,  # ✅ Save wash type
-            date=form.date.data.strftime("%Y-%m-%d"),
-            time=form.time.data.strftime("%H:%M"),
+            date=form.date.data,
+            time=form.time.data,
         )
         db.session.add(new_booking)
         db.session.commit()
