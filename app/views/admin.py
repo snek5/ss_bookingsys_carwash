@@ -148,6 +148,7 @@ def edit_booking(booking_id):
         booking.wash_type = form.wash_type.data
         booking.date = form.date.data
         booking.time = form.time.data
+        booking.status = form.status.data
 
         # Commit changes
         db.session.commit()

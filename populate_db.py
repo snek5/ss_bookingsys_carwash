@@ -1,7 +1,7 @@
 from faker import Faker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import random
 
 # Assuming your Flask app's data model is in a file named `models.py`
@@ -15,8 +15,8 @@ car_types = ["Sedan", "Truck", "SUV", "Others"]
 wash_types = ["Exterior", "Interior + Exterior", "Polish"]
 
 # Define the date range for 2025
-start_date = datetime(2025, 3, 1)
-end_date = datetime(2025, 3, 31)
+start_date = datetime(2025, 4, 1)
+end_date = datetime(2025, 4, 30)
 
 # Calculate the total number of days in 2025
 delta = end_date - start_date
@@ -34,7 +34,11 @@ def random_date():
 
 # Function to generate a random time in HH:MM format
 def random_time():
-    return f"{random.randint(0, 23):02d}:{random.randint(0, 59):02d}"
+    return time(
+        hour=random.randint(9, 17),    # 9AM to 5PM
+        minute=random.randint(0, 59),
+        second=0
+    )
 
 # Populate the Booking table with 1000 rows
 for _ in range(100):
@@ -44,7 +48,7 @@ for _ in range(100):
         car_plate=fake.license_plate(),
         car_type=random.choice(car_types),
         wash_type=random.choice(wash_types),
-        date=random_date().strftime('%Y-%m-%d'),
+        date=random_date(),
         time=random_time()
     )
     session.add(booking)

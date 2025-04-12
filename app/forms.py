@@ -22,6 +22,10 @@ class BookingForm(FlaskForm):
             ("Polish", "Polish"),
         ],
     )
+    status = SelectField("Status", 
+                         choices=[("Pending", "Pending"), 
+                                  ("Completed", "Completed"),
+                                  ("Cancelled", "Cancelled")])
     date = DateField("Date", validators=[DataRequired()])
     time = TimeField("Time", validators=[DataRequired()])
     submit = SubmitField("Book Now")

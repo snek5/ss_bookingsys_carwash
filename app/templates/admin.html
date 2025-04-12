@@ -2,8 +2,7 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 
-<h2 class="text-center text-primary mb-4">Admin Dashboard</h2>
-
+<h2 class="text-primary mb-4">Booking List</h2>
 <!-- Car Type Statistics -->
 <div class="row text-center">
     <div class="col-md-3">
@@ -74,13 +73,13 @@
 
 <!-- 🟢 Booking Table & Calendar -->
 <div class="row">
-        <h4>Booking List</h4>
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
                     <th>Plate Number</th>
                     <th>Car Type</th>
                     <th>Wash Type</th>
+                    <th>Contact Number</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
@@ -93,14 +92,11 @@
                     <td>{{ booking.car_plate }}</td>
                     <td>{{ booking.car_type }}</td>
                     <td>{{ booking.wash_type }}</td>
+                    <td>{{ booking.contact_number }}</td>
                     <td>{{ booking.date }}</td>
                     <td>{{ booking.time }}</td>
                     <td>{{ booking.status }}</td>
-                    <td>
-                        <button class="btn btn-success btn-sm update-status"
-                                data-id="{{ booking.id }}" data-status="Attended">✅ Attended</button>
-                        <button class="btn btn-danger btn-sm update-status"
-                                data-id="{{ booking.id }}" data-status="No Show">❌ No Show</button>        
+                    <td>       
                         <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <a href="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" class="btn btn-danger btn-sm">Delete</a>
                                 
