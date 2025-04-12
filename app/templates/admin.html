@@ -78,22 +78,24 @@
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>Customer</th>
+                    <th>Plate Number</th>
                     <th>Car Type</th>
                     <th>Wash Type</th>
                     <th>Date</th>
                     <th>Time</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for booking in bookings.items %}
                 <tr>
-                    <td>{{ booking.name }}</td>
+                    <td>{{ booking.car_plate }}</td>
                     <td>{{ booking.car_type }}</td>
                     <td>{{ booking.wash_type }}</td>
                     <td>{{ booking.date }}</td>
                     <td>{{ booking.time }}</td>
+                    <td>{{ booking.status }}</td>
                     <td>
                         <button class="btn btn-success btn-sm update-status"
                                 data-id="{{ booking.id }}" data-status="Attended">✅ Attended</button>

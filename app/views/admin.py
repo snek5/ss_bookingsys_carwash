@@ -179,21 +179,14 @@ def logout():
 # Calendar function
 # 🚀 Define wash durations
 WASH_DURATIONS = {
-    "Sedan": {"Exterior Only": 30, "Interior + Exterior": 45, "Exterior and Polish": 60},
-    "SUV": {"Exterior Only": 45, "Interior + Exterior": 60, "Exterior and Polish": 90},
-    "Truck": {"Exterior Only": 60, "Interior + Exterior": 90, "Exterior and Polish": 120},
+    "Sedan": {"Exterior Only": 30, "Interior + Exterior": 45, "Polish": 60},
+    "SUV": {"Exterior Only": 45, "Interior + Exterior": 60, "Polish": 90},
+    "Truck": {"Exterior Only": 60, "Interior + Exterior": 90, "Polish": 120},
 }
 
 @admin.route("/calendar")
 @login_required
 def calendar_view():
-    search_query = request.args.get("search", "").strip()
-    filter_car_type = request.args.get("filter_car_type", "")
-    filter_wash_type = request.args.get("filter_wash_type", "")
-    filter_today = request.args.get("filter_today", "")
-    sort_by = request.args.get("sort_by", "date")
-    sort_order = request.args.get("sort_order", "asc")
-
     today = datetime.today().strftime("%Y-%m-%d")
     query = Booking.query
 
@@ -208,44 +201,11 @@ def calendar_view():
         Booking.status
     )
 
-    if search_query:
-        query = query.filter(
-            (Booking.name.ilike(f"%{search_query}%")) |
-            (Booking.car_plate.ilike(f"%{search_query}%")) |
-            (Booking.contact_number.ilike(f"%{search_query}%"))
-        )
-
-    if filter_car_type:
-        query = query.filter(Booking.car_type == filter_car_type)
-    if filter_wash_type:
-        query = query.filter(Booking.wash_type == filter_wash_type)
-    if filter_today:
-        query = query.filter(Booking.date == today)
-
-    if sort_by in ["name", "date", "time"]:
-        query = query.order_by(
-            getattr(Booking, sort_by).desc() if sort_order == "desc" else getattr(Booking, sort_by).asc()
-        )
-
-    # 🟢 Get pagination arguments
-    page, per_page, _ = get_page_args(page_parameter="page", per_page_parameter="per_page")
-    per_page = 10
-
     # 🟢 Paginate results
-    bookings = query.paginate(page=page, per_page=per_page, error_out=False)
-
-    # 🟢 Count different car types for stats
-    suv_count = Booking.query.filter(Booking.car_type=="SUV", Booking.date == today, Booking.date.isnot(None)).count()
-    sedan_count = Booking.query.filter(Booking.car_type=="Sedan", Booking.date == today, Booking.date.isnot(None)).count()
-    truck_count = Booking.query.filter(Booking.car_type=="Truck", Booking.date == today, Booking.date.isnot(None)).count()
-    other_count = Booking.query.filter(Booking.car_type.notin_(["SUV", "Sedan", "Truck"]), Booking.date == today, Booking.date.isnot(None)).count()
+    bookings = query
 
     return render_template(
-        "calendar.html",
-        suv_count=suv_count,
-        sedan_count=sedan_count,
-        truck_count=truck_count,
-        other_count=other_count,
+        "calendar.html"
     )
 
 @admin.route("/api/bookings")
