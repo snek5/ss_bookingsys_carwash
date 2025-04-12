@@ -4,8 +4,9 @@ from flask_paginate import Pagination, get_page_args
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
-from ..forms import LoginForm, RegisterForm, BookingForm  # ✅ Import WTForms
+from ..forms import LoginForm, RegisterForm,BookingForm  # ✅ Import WTForms
 from datetime import datetime, timedelta
+from sqlalchemy import cast, String
 
 admin = Blueprint("admin", __name__)
 
@@ -143,8 +144,7 @@ def edit_booking(booking_id):
 
     if request.method == "POST" and form.validate_on_submit():
         # Update booking fields
-        booking.name = form.name.data
-        booking.car_type = form.car_type.data
+        booking.car_plate = form.car_plate.data
         booking.wash_type = form.wash_type.data
         booking.date = form.date.data
         booking.time = form.time.data
@@ -197,6 +197,17 @@ def calendar_view():
     today = datetime.today().strftime("%Y-%m-%d")
     query = Booking.query
 
+    # Apply cast() to the date column before pagination
+    query = query.with_entities(
+        Booking.id,
+        Booking.name,
+        Booking.car_type,
+        Booking.wash_type,
+        cast(Booking.date, String).label("date"),  # Force string type
+        Booking.time,
+        Booking.status
+    )
+
     if search_query:
         query = query.filter(
             (Booking.name.ilike(f"%{search_query}%")) |
@@ -224,10 +235,10 @@ def calendar_view():
     bookings = query.paginate(page=page, per_page=per_page, error_out=False)
 
     # 🟢 Count different car types for stats
-    suv_count = Booking.query.filter(Booking.car_type=="SUV", Booking.date == today).count()
-    sedan_count = Booking.query.filter(Booking.car_type=="Sedan", Booking.date == today).count()
-    truck_count = Booking.query.filter(Booking.car_type=="Truck", Booking.date == today).count()
-    other_count = Booking.query.filter(Booking.car_type.notin_(["SUV", "Sedan", "Truck"]), Booking.date == today).count()
+    suv_count = Booking.query.filter(Booking.car_type=="SUV", Booking.date == today, Booking.date.isnot(None)).count()
+    sedan_count = Booking.query.filter(Booking.car_type=="Sedan", Booking.date == today, Booking.date.isnot(None)).count()
+    truck_count = Booking.query.filter(Booking.car_type=="Truck", Booking.date == today, Booking.date.isnot(None)).count()
+    other_count = Booking.query.filter(Booking.car_type.notin_(["SUV", "Sedan", "Truck"]), Booking.date == today, Booking.date.isnot(None)).count()
 
     return render_template(
         "calendar.html",
@@ -244,31 +255,65 @@ def get_bookings():
     events = []
 
     for booking in bookings:
-        start_time = datetime.strptime(booking.time, "%H:%M")
-        duration = WASH_DURATIONS.get(booking.car_type, {}).get(booking.wash_type, 30)  # Default: 30 mins
-        end_time = start_time + timedelta(minutes=duration)
+        try:
+            # Handle time (could be string or time object)
+            if isinstance(booking.time, str):
+                start_time = datetime.strptime(booking.time, "%H:%M").time()
+            else:
+                start_time = booking.time
 
-        # 🎨 Change color based on status
-        if booking.status == "Attended":
-            text_decoration = "line-through"
-            opacity = 0.6
-        elif booking.status == "No Show":
-            background_color = "red"
-        else:
-            text_decoration = "none"
-            opacity = 1
-            background_color = "#007bff" if booking.wash_type == "Exterior Only" else "#28a745" if booking.wash_type == "Interior + Exterior" else "#ffc107"
+            # Handle date (could be string or date object)
+            if isinstance(booking.date, str):
+                booking_date = datetime.strptime(booking.date, "%Y-%m-%d").date()
+            else:
+                booking_date = booking.date
 
-        events.append({
-            "id": booking.id,
-            "title": f"{booking.name} - {booking.car_type} - {booking.wash_type}",
-            "start": f"{booking.date}T{start_time.strftime('%H:%M')}",
-            "end": f"{booking.date}T{end_time.strftime('%H:%M')}",
-            "color": background_color,
-            "textDecoration": text_decoration,
-            "opacity": opacity,
-            "status": booking.status  # Include status
-        })
+            duration = WASH_DURATIONS.get(booking.car_type, {}).get(booking.wash_type, 30)
+            
+            # Create proper datetime objects
+            start_datetime = datetime.combine(booking_date, start_time)
+            end_datetime = start_datetime + timedelta(minutes=duration)
+
+            # Format dates consistently
+            date_str = booking_date.strftime("%Y-%m-%d")
+            start_str = start_time.strftime("%H:%M")
+            end_str = end_datetime.time().strftime("%H:%M")
+
+            # Status styling
+            style = {
+                "color": "#007bff" if booking.wash_type == "Exterior Only" 
+                        else "#28a745" if booking.wash_type == "Interior + Exterior" 
+                        else "#ffc107",
+                "textDecoration": "none",
+                "opacity": 1
+            }
+            
+            if booking.status == "Attended":
+                style.update({
+                    "textDecoration": "line-through",
+                    "opacity": 0.6
+                })
+            elif booking.status == "No Show":
+                style.update({
+                    "color": "red"
+                })
+
+            events.append({
+                "id": booking.id,
+                "title": f"{booking.car_plate} - {booking.car_type} - {booking.wash_type}",
+                "start": f"{date_str}T{start_str}",
+                "end": f"{date_str}T{end_str}",
+                "extendedProps": {
+                    "status": booking.status
+                },
+                "backgroundColor": style["color"],
+                "textDecoration": style["textDecoration"],
+                "opacity": style["opacity"]
+            })
+
+        except Exception as e:
+            print(f"Error processing booking {booking.id}: {str(e)}")
+            continue
 
     return jsonify(events)
 

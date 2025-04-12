@@ -8,16 +8,20 @@
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="mb-3">
-                {{ form.name.label(class="form-label") }}
-                {{ form.name(class="form-control") }}
+                {{ form.car_plate.label(class="form-label") }}
+                {{ form.car_plate(class="form-control") }}
             </div>
             <div class="mb-3">
-                {{ form.car_type.label(class="form-label") }}
-                {{ form.car_type(class="form-control") }}
+                {{ form.wash_type.label(class="form-label") }}
+                {{ form.wash_type(class="form-control") }}
             </div>
             <div class="mb-3">
                 {{ form.date.label(class="form-label") }}
                 {{ form.date(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.time.label(class="form-label") }}
+                {{ form.time(class="form-control") }}
             </div>
             <button type="submit" class="btn btn-warning w-100">Update</button>
         </form>
