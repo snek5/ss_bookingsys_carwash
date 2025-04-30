@@ -17,7 +17,7 @@ class BookingForm(FlaskForm):
     wash_type = SelectField(
         "Type of Wash",
         choices=[
-            ("Exterior Only", "Exterior Only"),
+            ("Exterior", "Exterior"),
             ("Interior + Exterior", "Interior + Exterior"),
             ("Polish", "Polish"),
         ],
