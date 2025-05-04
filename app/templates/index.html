@@ -45,7 +45,54 @@
 
             <button type="submit" class="btn btn-success w-100">Book Now</button>
         </form>
+
+        <div id="availability-warning" class="text-center mt-3"></div>
     </div>
 </div>
+
+<script src="https://unpkg.com/htmx.org"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const timeInput = document.querySelector("#time");
+        const dateInput = document.querySelector("#date");
+        const carTypeInput = document.querySelector("#car_type");
+        const washTypeInput = document.querySelector("#wash_type");
+        const bookNowButton = document.querySelector("button[type='submit']");
+
+        function checkAvailability() {
+            const date = dateInput.value;
+            const time = timeInput.value;
+            const carType = carTypeInput.value;
+            const washType = washTypeInput.value;
+
+            if (date && time && carType && washType) {
+                fetch(`/api/check-availability?date=${date}&time=${time}&car_type=${carType}&wash_type=${washType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const warningDiv = document.querySelector("#availability-warning");
+                        if (data.available) {
+                            warningDiv.textContent = "Time slot is available.";
+                            warningDiv.style.color = "green";
+                            bookNowButton.disabled = false;
+                        } else {
+                            warningDiv.textContent = "Time slot is not available. Please choose another time.";
+                            warningDiv.style.color = "red";
+                            bookNowButton.disabled = true;
+                        }
+                    });
+            } else {
+                bookNowButton.disabled = true;
+            }
+        }
+
+        timeInput.addEventListener("change", checkAvailability);
+        dateInput.addEventListener("change", checkAvailability);
+        carTypeInput.addEventListener("change", checkAvailability);
+        washTypeInput.addEventListener("change", checkAvailability);
+
+        // Initial state
+        bookNowButton.disabled = true;
+    });
+</script>
 
 {% endblock %}

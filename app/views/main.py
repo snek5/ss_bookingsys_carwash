@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from datetime import datetime, timedelta
 from ..models import Booking, db
 from ..forms import BookingForm
 from ..sms import confirmation_sms
@@ -37,3 +38,32 @@ def index():
     else:
         print(form.errors)
     return render_template("index.html", form=form)
+
+
+@main.route("/api/check-availability")
+def check_availability():
+    date = request.args.get("date")
+    time = request.args.get("time")
+    car_type = request.args.get("car_type")
+    wash_type = request.args.get("wash_type")
+
+    # Calculate wash duration based on car type and wash type
+    WASH_DURATIONS = {
+        "Sedan": {"Exterior Only": 30, "Interior + Exterior": 45, "Polish": 60},
+        "SUV": {"Exterior Only": 45, "Interior + Exterior": 60, "Polish": 90},
+        "Truck": {"Exterior Only": 60, "Interior + Exterior": 90, "Polish": 120},
+    }
+
+    duration = WASH_DURATIONS.get(car_type, {}).get(wash_type, 30)
+
+    # Convert time to datetime object
+    start_time = datetime.strptime(time, "%H:%M").time()
+    end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=duration)).time()
+
+    # Check for overlapping bookings
+    overlapping_bookings = Booking.query.filter(
+        Booking.date == date,
+        Booking.time.between(start_time, end_time)
+    ).count()
+
+    return jsonify({"available": overlapping_bookings == 0})
