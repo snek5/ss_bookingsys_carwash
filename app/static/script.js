@@ -15,10 +15,11 @@ document.addEventListener("DOMContentLoaded", function () {
         events: "/admin/api/bookings",
         eventDidMount: function(info) {
             const status = info.event.extendedProps.status;
-            if (status === "Attended") {
-                info.el.style.textDecoration = "line-through";
-                info.el.style.opacity = 0.6;
-            } else if (status === "No Show") {
+            if (status === "Complete") {
+                info.el.style.backgroundColor = "green";
+            } else if (status === "Pending") {
+                info.el.style.backgroundColor = "yellow";
+            } else if (status === "Cancelled") {
                 info.el.style.backgroundColor = "red";
             }
         },

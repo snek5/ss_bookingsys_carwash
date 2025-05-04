@@ -56,11 +56,8 @@ def register():
 @login_required
 def dashboard():
     search_query = request.args.get("search", "").strip()
-    filter_car_type = request.args.get("filter_car_type", "")
-    filter_wash_type = request.args.get("filter_wash_type", "")
-    filter_today = request.args.get("filter_today", "")
     sort_by = request.args.get("sort_by", "date")
-    sort_order = request.args.get("sort_order", "asc")
+    sort_order = request.args.get("sort_order", "desc")  # Default to descending order for latest bookings
 
     today = datetime.today().strftime("%Y-%m-%d")
     query = Booking.query
@@ -71,13 +68,6 @@ def dashboard():
             (Booking.car_plate.ilike(f"%{search_query}%")) |
             (Booking.contact_number.ilike(f"%{search_query}%"))
         )
-
-    if filter_car_type:
-        query = query.filter(Booking.car_type == filter_car_type)
-    if filter_wash_type:
-        query = query.filter(Booking.wash_type == filter_wash_type)
-    if filter_today:
-        query = query.filter(Booking.date == today)
 
     if sort_by in ["name", "date", "time"]:
         query = query.order_by(
@@ -106,9 +96,6 @@ def dashboard():
         truck_count=truck_count,
         other_count=other_count,
         search_query=search_query,
-        filter_car_type=filter_car_type,
-        filter_wash_type=filter_wash_type,
-        filter_today=filter_today,
         sort_by=sort_by,
         sort_order=sort_order
     )
@@ -153,7 +140,7 @@ def edit_booking(booking_id):
         # Commit changes
         db.session.commit()
         flash("Booking updated successfully!", "success")
-        return redirect(url_for("admin.dashboard"))
+        return redirect(url_for("admin.calendar_view"))  # Redirect to /calendar
 
     return render_template("edit_booking.html", form=form, booking=booking)
 

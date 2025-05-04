@@ -46,25 +46,16 @@
                value="{{ search_query }}">
     </div>
     <div class="col-md-2">
-        <select name="filter_car_type" class="form-control">
-            <option value="">Car Type</option>
-            <option value="SUV" {% if filter_car_type=="SUV" %}selected{% endif %}>SUV</option>
-            <option value="Sedan" {% if filter_car_type=="Sedan" %}selected{% endif %}>Sedan</option>
-            <option value="Truck" {% if filter_car_type=="Truck" %}selected{% endif %}>Truck</option>
+        <select name="sort_by" class="form-control">
+            <option value="date" {% if sort_by == "date" %}selected{% endif %}>Sort by Date</option>
+            <option value="time" {% if sort_by == "time" %}selected{% endif %}>Sort by Time</option>
         </select>
     </div>
     <div class="col-md-2">
-        <select name="filter_wash_type" class="form-control">
-            <option value="">Wash Type</option>
-            <option value="Exterior Only" {% if filter_wash_type=="Exterior Only" %}selected{% endif %}>Exterior Only</option>
-            <option value="Interior + Exterior" {% if filter_wash_type=="Interior + Exterior" %}selected{% endif %}>Interior + Exterior</option>
-            <option value="Exterior and Polish" {% if filter_wash_type=="Exterior and Polish" %}selected{% endif %}>Exterior and Polish</option>
+        <select name="sort_order" class="form-control">
+            <option value="asc" {% if sort_order == "asc" %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if sort_order == "desc" %}selected{% endif %}>Descending</option>
         </select>
-    </div>
-    <div class="col-md-2 d-flex align-items-center">
-        <input type="checkbox" name="filter_today" value="true" {% if filter_today %}checked{% endif %}
-               class="form-check-input me-2">
-        <label class="form-check-label">Today's Bookings</label>
     </div>
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
