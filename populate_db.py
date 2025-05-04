@@ -15,8 +15,8 @@ car_types = ["Sedan", "Truck", "SUV", "Others"]
 wash_types = ["Exterior", "Interior + Exterior", "Polish"]
 
 # Define the date range for 2025
-start_date = datetime(2025, 4, 1)
-end_date = datetime(2025, 4, 30)
+start_date = datetime(2025, 5, 1)
+end_date = datetime(2025, 5, 30)
 
 # Calculate the total number of days in 2025
 delta = end_date - start_date
