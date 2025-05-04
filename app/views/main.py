@@ -3,6 +3,7 @@ from ..models import Booking, db
 from ..forms import BookingForm
 from ..sms import confirmation_sms
 
+
 main = Blueprint('main', __name__)
 
 

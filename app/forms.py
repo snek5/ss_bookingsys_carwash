@@ -22,13 +22,38 @@ class BookingForm(FlaskForm):
             ("Polish", "Polish"),
         ],
     )
-    status = SelectField("Status", 
-                         choices=[("Pending", "Pending"), 
-                                  ("Completed", "Completed"),
-                                  ("Cancelled", "Cancelled")])
     date = DateField("Date", validators=[DataRequired()])
     time = TimeField("Time", validators=[DataRequired()])
     submit = SubmitField("Book Now")
+
+class AdminBookingForm(FlaskForm):
+    name = StringField("Customer Name", validators=[DataRequired(), Length(min=2, max=100)])
+    contact_number = StringField(
+        "Contact Number",
+        validators=[
+            DataRequired(),
+            Length(min=7, max=7, message="Contact number must be exactly 7 digits."),
+            Regexp(r"^\d{7}$", message="Contact number must contain only digits (0-9)."),
+        ],
+    )
+    car_plate = StringField("Car Plate Number", validators=[DataRequired(), Length(min=2, max=20)])
+    car_type = SelectField("Car Type", choices=[("SUV", "SUV"), ("Sedan", "Sedan"), ("Truck", "Truck")])
+    wash_type = SelectField(
+        "Type of Wash",
+        choices=[
+            ("Exterior", "Exterior"),
+            ("Interior + Exterior", "Interior + Exterior"),
+            ("Polish", "Polish"),
+        ],
+    )
+    date = DateField("Date", validators=[DataRequired()])
+    time = TimeField("Time", validators=[DataRequired()])
+    status = SelectField(
+        "Status",
+        choices=[("Pending", "Pending"), ("Completed", "Completed"), ("Cancelled", "Cancelled")],
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Save Changes")
 
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])

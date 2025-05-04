@@ -4,7 +4,7 @@ from flask_paginate import Pagination, get_page_args
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import Admin, Booking, db
 from .. import login_manager
-from ..forms import LoginForm, RegisterForm,BookingForm  # ✅ Import WTForms
+from ..forms import LoginForm, RegisterForm, BookingForm, AdminBookingForm  # ✅ Import WTForms
 from datetime import datetime, timedelta
 from sqlalchemy import cast, String
 
@@ -140,7 +140,7 @@ def add_booking():
 @login_required
 def edit_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
-    form = BookingForm(obj=booking)
+    form = AdminBookingForm(obj=booking)  # Use AdminBookingForm instead of BookingForm
 
     if request.method == "POST" and form.validate_on_submit():
         # Update booking fields
